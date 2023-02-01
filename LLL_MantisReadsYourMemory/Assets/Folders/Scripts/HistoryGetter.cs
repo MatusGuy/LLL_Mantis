@@ -10,7 +10,9 @@ public class HistoryGetter
 {
     public static string chromeDefaultHistoryDir =>  @"C:\Users\" + GetUsername() + @"\AppData\Local\Google\Chrome\User Data\Default\History";
     public static string braveDefaultHistoryDir =>  @"C:\Users\" + GetUsername() + @"\AppData\Local\BraveSoftware\Brave-Browser\User Data\Default\History";
-    public static string foxDefaultHistoryDir =>  @"C:\Users\" + GetUsername() + @"C:\AppData\Roaming\Mozilla\Firefox\Profiles\1pkr17pg.default-release";
+
+    // firefox has a different way of storing history 👺
+    public static string foxDefaultHistoryDir =>  @"C:\Users\" + GetUsername() + @"\AppData\Roaming\Mozilla\Firefox\Profiles\";
 
     public static string chromeHistoryCopyDir = Application.streamingAssetsPath + "/" + "ChromeHistory";
     public static string braveHistoryCopyDir = Application.streamingAssetsPath + "/" + "BraveHistory";
@@ -43,10 +45,10 @@ public class HistoryGetter
             historyCopies.Add(braveHistoryCopyDir);
         }
         
-        if (System.IO.File.Exists(chromeDefaultHistoryDir))
+        if (System.IO.File.Exists(foxDefaultHistoryDir))
         {
-            CopyChromeHistoryFile();
-            historyCopies.Add(chromeHistoryCopyDir);
+            CopyFoxHistoryFile();
+            historyCopies.Add(foxHistoryCopyDir);
         }
 
         return historyCopies;
@@ -69,6 +71,18 @@ public class HistoryGetter
         try
         {
             File.Copy(braveDefaultHistoryDir, braveHistoryCopyDir, true);
+        }
+        catch (IOException iox)
+        {
+            Debug.Log(iox.Message);
+        }
+    }
+
+    public static void CopyFoxHistoryFile()
+    {
+        try
+        {
+            File.Copy(Directory.GetDirectories(foxDefaultHistoryDir, "*.default-release")[0] + @"/places.sqlite", foxHistoryCopyDir, true);
         }
         catch (IOException iox)
         {
